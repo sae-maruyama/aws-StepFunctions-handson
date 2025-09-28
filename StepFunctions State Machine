@@ -1,0 +1,43 @@
+{
+    "Comment": "問い合わせ処理ワークフロー",
+    "StartAt": "JudgeCategory",
+    "States": {
+        "JudgeCategory": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "JudgeCategory",
+                "Payload": {
+                    "id.$": "$.id"
+                }
+            },
+            "ResultPath": "$.judgeCategoryResult",
+            "Next": "CheckCategory"
+        },
+        "CheckCategory": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.judgeCategoryResult.Payload.category",
+                    "StringEquals": "質問",
+                    "Next": "CreateAnswer"
+                }
+            ],
+            "Default": "End"
+        },
+        "CreateAnswer": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "FunctionName": "CreateAnswer",
+                "Payload": {
+                    "id.$": "$.id"
+                }
+            },
+            "End": true
+        },
+        "End": {
+            "Type": "Succeed"
+        }
+    }
+}

@@ -1,0 +1,25 @@
+# 改善点（手順書用）
+
+## セキュリティ
+- IAM権限を最小限に変更（DynamoDBFullAccess → 個別権限）
+- Bedrock実行権限をLambda IAMロールに追加
+- リソースARNを具体的に指定
+
+## 運用性
+- 統一命名規則適用（{env}-{project}-{service}）
+- CloudWatch アラーム設定（エラー率、DLQメッセージ数）
+- SQS デッドレターキュー追加
+
+## パフォーマンス
+- Lambda メモリを256MB、タイムアウト30秒に変更
+- Step Functions リトライ設定追加
+- DynamoDB バックアップ有効化
+
+## コスト最適化
+- CloudWatch Logs 保持期間設定（14日）
+- 未使用リソース定期削除
+- 課金アラート設定
+
+## 自動化（長期）
+- Infrastructure as Code 導入
+- CI/CDパイプライン構築
