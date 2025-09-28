@@ -1,21 +1,4 @@
-# UploadInquiry Lambda
-ユーザーの問い合わせを受け取り、DynamoDBに保存し、SQSにidを送信。
-
-# SQSキュー
-UploadInquiryから送られてきたidを保持。Lambdaがトリガーで受け取る。
-
-# Execution Lambda（SQS→Step Functions起動）
-SQSメッセージからidを取り出し、Step Functionsステートマシンをinput={'id':...}で起動。
-
-# Step Functions
-- Task1: JudgeCategory Lambdaを呼ぶ
-- Choice: カテゴリに応じて分岐
-- Task2: CreateAnswer Lambdaを呼ぶ（今回はRAGあり）
-
-# DynamoDB
-UploadInquiryで保存された問い合わせや、各Lambdaが書き込むカテゴリ・回答を保持。
-
-## 📨 各ステップの受け渡しデータ
+## 各ステップの受け渡しデータ
 
 ### ① UploadInquiry Lambda
 

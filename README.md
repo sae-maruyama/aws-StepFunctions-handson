@@ -16,12 +16,8 @@ Task2: CreateAnswer Lambdaを呼ぶ（今回はRAGあり）
 - DynamoDB
 → UploadInquiryで保存された問い合わせや、各Lambdaが書き込むカテゴリ・回答を保持。
 
----
-
 # データ受け渡しの流れ
 dataflow.md　を参照
-
----
 
 # リソース作成順序
 
@@ -57,27 +53,23 @@ dataflow.md　を参照
 17. Bedrock Knowledge Base作成
 18. CreateAnswer関数の環境変数にKnowledge Base ID設定
 
----
-
 # 環境変数の設定
 
 ## UploadInquiry
-- `TABLE_NAME` (必須): DynamoDBテーブル名（handson-table）
-- `SQS_QUEUE_URL` (必須): SQSキューURL（https://sqs.us-east-1.amazonaws.com/166855511114/handson-sqs）
+- `TABLE_NAME` (必須): DynamoDBテーブル名
+- `SQS_QUEUE_URL` (必須): SQSキューURL
 
 ## ExecuteJob
-- `STATE_MACHINE_ARN`: Step Function ステートマシーンのARN（arn:aws:states:us-east-1:166855511114:stateMachine:handson-stepfunction）
+- `STATE_MACHINE_ARN`: Step Function ステートマシーンのARN
 
 ## JudgeCategory
-- `TABLE_NAME` (必須): DynamoDBテーブル名（handson-table）
-- `BEDROCK_MODEL_ID` (オプション): デフォルト anthropic.claude-3-sonnet-20240229-v1:0
+- `TABLE_NAME` (必須): DynamoDBテーブル名
+- `BEDROCK_MODEL_ID`: デフォルト anthropic.claude-3-sonnet-20240229-v1:0
 
 ## CreateAnswer
-- `TABLE_NAME` (必須): DynamoDBテーブル名（handson-table）
-- `BEDROCK_MODEL_ID` (オプション): デフォルト anthropic.claude-3-sonnet-20240229-v1:0
-- `KNOWLEDGE_BASE_ID` (オプション): RAG用ナレッジベースID
-
----
+- `TABLE_NAME` (必須): DynamoDBテーブル名
+- `BEDROCK_MODEL_ID`: デフォルト anthropic.claude-3-sonnet-20240229-v1:0
+- `KNOWLEDGE_BASE_ID`: RAG用ナレッジベースID
 
 # IAM権限の設定
 
