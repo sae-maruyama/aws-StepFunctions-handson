@@ -1,98 +1,127 @@
-# 全体の流れ
-- UploadInquiry Lambda
-→ ユーザーの問い合わせを受け取り、DynamoDBに保存し、SQSにidを送信。
+# AWS Lambda Step Functions プロジェクト
 
-- SQSキュー
-→ UploadInquiryから送られてきたidを保持。
+## 📋 全体の流れ
 
-- Execution Lambda（SQS→Step Functions起動）
-→ SQSメッセージからidを取り出し、Step Functionsステートマシンをinput={'id':...}で起動。
+### システム構成
+- **UploadInquiry Lambda** → ユーザーの問い合わせを受け取り、DynamoDBに保存し、SQSにidを送信
+- **SQSキュー** → UploadInquiryから送られてきたidを保持
+- **Execution Lambda** → SQSメッセージからidを取り出し、Step Functionsステートマシンを起動
+- **Step Functions** 
+  - Task1: JudgeCategory Lambdaを呼ぶ
+  - Choice: カテゴリに応じて分岐
+  - Task2: CreateAnswer Lambdaを呼ぶ（RAG機能あり）
+- **DynamoDB** → 問い合わせ、カテゴリ、回答データを保持
 
-- Step Functions
-Task1: JudgeCategory Lambdaを呼ぶ
-Choice: カテゴリに応じて分岐
-Task2: CreateAnswer Lambdaを呼ぶ（今回はRAGあり）
+### データフロー
+詳細なデータ受け渡しについては `dataflow.md` を参照してください。
 
-- DynamoDB
-→ UploadInquiryで保存された問い合わせや、各Lambdaが書き込むカテゴリ・回答を保持。
+## 🚀 構築手順
 
-# データ受け渡しの流れ
-dataflow.md　を参照
+### 1. 事前準備
+- [ ] Bedrock基盤モデルアクセス有効化
+- [ ] IAM基本ロール作成（Lambda用、Step Functions用）
 
-# リソース作成順序
+### 2. 基盤リソース作成
+- [ ] DynamoDB テーブル作成
+- [ ] SQS キュー作成（デッドレターキュー含む）
 
-## 事前準備
-1. Bedrock基盤モデルアクセス有効化
-2. IAM基本ロール作成（Lambda用、Step Functions用）
+### 3. Lambda関数作成・テスト
+- [ ] JudgeCategory Lambda作成・デプロイ
+- [ ] CreateAnswer Lambda作成・デプロイ
+- [ ] 個別Lambda関数テスト（Bedrock呼び出し確認）
 
-## 基盤リソース作成
-3. DynamoDB テーブル作成
-4. SQS キュー作成（デッドレターキュー含む）
+### 4. ワークフロー構築
+- [ ] Step Functions ステートマシン作成
+- [ ] ExecuteJob Lambda作成・デプロイ
+- [ ] UploadInquiry Lambda修正・デプロイ
 
-## Lambda関数作成・テスト
-5. JudgeCategory Lambda作成・デプロイ
-6. CreateAnswer Lambda作成・デプロイ
-12. 各Lambda関数の環境変数設定
-7. 個別Lambda関数テスト（Bedrock呼び出し確認）
+### 5. 統合設定
+- [ ] SQS → ExecuteJob トリガー設定
+- [ ] 各Lambda関数の環境変数設定
+- [ ] IAMロールの詳細権限追加
 
-## ワークフロー構築
-8. Step Functions ステートマシン作成
-9. ExecuteJob Lambda作成・デプロイ
-10. UploadInquiry Lambda修正・デプロイ
+### 6. テスト・検証
+- [ ] Step Functions実行テスト
+- [ ] エンドツーエンド統合テスト
 
-## 統合設定
-11. SQS → ExecuteJob トリガー設定
-13. IAMロールの詳細権限追加
+### 7. オプション機能（後から追加可能）
+- [ ] S3バケット作成・データアップロード（RAG用）
+- [ ] Bedrock Knowledge Base作成
+- [ ] CreateAnswer関数の環境変数にKnowledge Base ID設定
 
-## テスト・検証
-14. Step Functions実行テスト
-15. エンドツーエンド統合テスト
+## ⚙️ 環境変数の設定
 
-## オプション機能（後から追加可能）
-16. S3バケット作成・データアップロード（RAG用）
-17. Bedrock Knowledge Base作成
-18. CreateAnswer関数の環境変数にKnowledge Base ID設定
+### UploadInquiry
+| 変数名 | 必須 | 説明 |
+|--------|------|------|
+| `TABLE_NAME` | ✅ | DynamoDBテーブル名 |
+| `SQS_QUEUE_URL` | ✅ | SQSキューURL |
 
-# 環境変数の設定
+### ExecuteJob
+| 変数名 | 必須 | 説明 |
+|--------|------|------|
+| `STATE_MACHINE_ARN` | ✅ | Step Function ステートマシーンのARN |
 
-## UploadInquiry
-- `TABLE_NAME` (必須): DynamoDBテーブル名
-- `SQS_QUEUE_URL` (必須): SQSキューURL
+### JudgeCategory
+| 変数名 | 必須 | デフォルト値 | 説明 |
+|--------|------|-------------|------|
+| `TABLE_NAME` | ✅ | - | DynamoDBテーブル名 |
+| `BEDROCK_MODEL_ID` | ❌ | anthropic.claude-3-sonnet-20240229-v1:0 | Bedrockモデル ID |
 
-## ExecuteJob
-- `STATE_MACHINE_ARN`: Step Function ステートマシーンのARN
+### CreateAnswer
+| 変数名 | 必須 | デフォルト値 | 説明 |
+|--------|------|-------------|------|
+| `TABLE_NAME` | ✅ | - | DynamoDBテーブル名 |
+| `BEDROCK_MODEL_ID` | ❌ | anthropic.claude-3-sonnet-20240229-v1:0 | Bedrockモデル ID |
+| `KNOWLEDGE_BASE_ID` | ❌ | - | RAG用ナレッジベースID |
 
-## JudgeCategory
-- `TABLE_NAME` (必須): DynamoDBテーブル名
-- `BEDROCK_MODEL_ID`: デフォルト anthropic.claude-3-sonnet-20240229-v1:0
+## 🔐 IAM権限の設定
 
-## CreateAnswer
-- `TABLE_NAME` (必須): DynamoDBテーブル名
-- `BEDROCK_MODEL_ID`: デフォルト anthropic.claude-3-sonnet-20240229-v1:0
-- `KNOWLEDGE_BASE_ID`: RAG用ナレッジベースID
+### UploadInquiry
+- **DynamoDB**
+  - `dynamodb:PutItem` （該当テーブルARN）
+- **SQS**
+  - `sqs:SendMessage` （該当キューARN）
+- **CloudWatch Logs**
+  - `logs:CreateLogStream`
+  - `logs:PutLogEvents`
 
-# IAM権限の設定
+### ExecuteJob
+- **Step Functions**
+  - `states:StartExecution`
+- **SQS**
+  - `sqs:ReceiveMessage`
+  - `sqs:DeleteMessage`
+  - `sqs:GetQueueAttributes`
+- **CloudWatch Logs** (自動付与)
 
-## UploadInquiry
-- DynamoDB（dynamodb:PutItem　※該当テーブルARN）
-- SQS（sqs:SendMessage　※該当キューARN）
-- CloudWatch Logs（logs:CreateLogStream, logs:PutLogEvents　※該当Lambda）
+### Step Functions State Machine
+- **Lambda**
+  - `lambda:InvokeFunction`
+- **CloudWatch Logs**
+  - `logs:CreateLogGroup`
+  - `logs:CreateLogStream`
+  - `logs:PutLogEvents`
 
-## ExecuteJob
-- Step Functions実行権限（states:StartExecution）
-- SQS（sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes）
-- CloudWatch Logs関係（自動付与）
+### JudgeCategory
+- **DynamoDB**
+  - `dynamodb:GetItem` （該当テーブルARN）
+  - `dynamodb:UpdateItem` （該当テーブルARN）
+- **Bedrock**
+  - `bedrock:InvokeModel`
+- **CloudWatch Logs**
+  - `logs:CreateLogGroup`
+  - `logs:CreateLogStream`
+  - `logs:PutLogEvents`
 
-## StepFunctions State Machine
-- Lambda（lambda:InvokeFunction）
-- CloudWatch Logs（logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents）
-
-## JudgeCategory
-- DynamoDB（dynamodb:GetItem, dynamodb:UpdateItem ※該当テーブルARN）
-- Bedrock（bedrock:InvokeModel）
-- CloudWatch Logs（logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents）
-
-## CreateAnswer
-- DynamoDB（dynamodb:GetItem, dynamodb:UpdateItem ※該当テーブルARN）
-- Bedrock（bedrock:InvokeModel, bedrock:Retrieve）
-- CloudWatch Logs（logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents）
+### CreateAnswer
+- **DynamoDB**
+  - `dynamodb:GetItem` （該当テーブルARN）
+  - `dynamodb:UpdateItem` （該当テーブルARN）
+- **Bedrock**
+  - `bedrock:InvokeModel`
+  - `bedrock:Retrieve`
+- **CloudWatch Logs**
+  - `logs:CreateLogGroup`
+  - `logs:CreateLogStream`
+  - `logs:PutLogEvents`
