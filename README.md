@@ -1,6 +1,7 @@
 # AWS Lambda／Step Functions ハンズオン
 
 ## 全体の流れ
+![構成図](structure-1.png)
 
 ### システム構成
 - **UploadInquiry Lambda** → ユーザーの問い合わせを受け取り、DynamoDBに保存し、SQSにidを送信
