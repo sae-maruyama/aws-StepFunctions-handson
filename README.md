@@ -80,9 +80,9 @@
 
 ### UploadInquiry
 - **DynamoDB**
-  - `dynamodb:PutItem` （該当テーブルARN）
+  - `dynamodb:PutItem` （該当テーブルARNに対して）
 - **SQS**
-  - `sqs:SendMessage` （該当キューARN）
+  - `sqs:SendMessage` （該当キューARNに対して）
 - **CloudWatch Logs**
   - `logs:CreateLogStream`
   - `logs:PutLogEvents`
