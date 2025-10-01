@@ -67,7 +67,7 @@ for record in event['Records']:
     if 'id' not in message_body: continue
     inquiry_id = message_body['id']
 ```
-- ここで inquiry_id に "xxxx-uuid" が入ります。
+- ここで inquiry_id に "xxxx-uuid" が入る。
 
 **Step Functions起動（コード）**
 
