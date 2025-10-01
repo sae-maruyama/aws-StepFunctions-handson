@@ -106,8 +106,8 @@
 
 ### JudgeCategory
 - **DynamoDB**
-  - `dynamodb:GetItem` （該当テーブルARN）
-  - `dynamodb:UpdateItem` （該当テーブルARN）
+  - `dynamodb:GetItem` （該当テーブルARNに対して）
+  - `dynamodb:UpdateItem` （該当テーブルARNに対して）
 - **Bedrock**
   - `bedrock:InvokeModel`
 - **CloudWatch Logs**
@@ -117,8 +117,8 @@
 
 ### CreateAnswer
 - **DynamoDB**
-  - `dynamodb:GetItem` （該当テーブルARN）
-  - `dynamodb:UpdateItem` （該当テーブルARN）
+  - `dynamodb:GetItem` （該当テーブルARNに対して）
+  - `dynamodb:UpdateItem` （該当テーブルARNに対して）
 - **Bedrock**
   - `bedrock:InvokeModel`
   - `bedrock:Retrieve`
