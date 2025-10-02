@@ -27,18 +27,18 @@
 -  SQS キュー作成（デッドレターキュー含む）
 
 ### 3. Lambda関数作成・テスト
+-  UploadInquiry Lambda修正・デプロイ
+-  ExecuteJob Lambda作成・デプロイ
 -  JudgeCategory Lambda作成・デプロイ
 -  CreateAnswer Lambda作成・デプロイ
--  個別Lambda関数テスト（Bedrock呼び出し確認）
+-  各Lambda関数の環境変数設定
+-  個別Lambda関数テスト（Bedrock呼び出し含めて確認）
 
 ### 4. ワークフロー構築
 -  Step Functions ステートマシン作成
--  ExecuteJob Lambda作成・デプロイ
--  UploadInquiry Lambda修正・デプロイ
 
 ### 5. 統合設定
 -  SQS → ExecuteJob トリガー設定
--  各Lambda関数の環境変数設定
 -  IAMロールの詳細権限追加
 
 ### 6. テスト・検証
@@ -76,7 +76,7 @@
 | `BEDROCK_MODEL_ID` | - | anthropic.claude-3-sonnet-20240229-v1:0 | Bedrockモデル ID |
 | `KNOWLEDGE_BASE_ID` | - | - | RAG用ナレッジベースID |
 
-## IAM権限の設定
+## IAM権限の設定（最小権限）
 
 ### UploadInquiry
 - **DynamoDB**
@@ -94,7 +94,9 @@
   - `sqs:ReceiveMessage`
   - `sqs:DeleteMessage`
   - `sqs:GetQueueAttributes`
-- **CloudWatch Logs** (自動付与)
+- **CloudWatch Logs**
+  - `logs:CreateLogStream`
+  - `logs:PutLogEvents`
 
 ### Step Functions State Machine
 - **Lambda**
